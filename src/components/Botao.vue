@@ -1,5 +1,5 @@
 <template>
-  <div :class="btnClass" v-on:click="abreModal()">
+  <div :class="btnClass" v-on:click="abreModal()" v-if="visivel">
     <slot name="icone"/>
   </div>
 </template>
@@ -14,6 +14,26 @@ export default {
       type: Boolean,
       required: false
     },
+    visivel: {
+      default: true,
+      type: Boolean,
+      required: false
+    },
+    activeColor: {
+      type: String,
+      default: 'black',
+      required: false
+    },
+    backgroundColor: {
+      type: String,
+      default: 'none',
+      required: false
+    },
+    border: {
+      type: String,
+      default: 'black 0px solid',
+      required: false
+    }
   },
   data() {
     return {
@@ -42,11 +62,16 @@ div {
 }
 
 .btn, .disabledBtn {
-  padding: 4px;
+  margin: 2px;
+  padding: 2px;
+  background-color: v-bind(backgroundColor);
+  border: v-bind(border);
+  border-radius: 5px;
 }
 
 .btn {
   cursor: pointer;
+  color: v-bind(activeColor);
 }
 
 .disabledBtn {
