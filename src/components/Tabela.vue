@@ -22,7 +22,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(r, index) in dadosFiltrados" :key="index" class="center">
+      <tr v-for="(r, index) in dadosFiltrados" :key="index" :class="validaLinha(index)">
         <th scope="row">{{ index+1 }}</th>
         <td v-for="(d, i) in r" :key="i">{{ d }}</td>
         <td>
@@ -157,6 +157,12 @@ export default {
       this.tipoEdicaoModal = tem;
       this.modalVisivel = true;
     },
+    validaLinha(i){
+      if(i%2 === 0){
+        return 'center par'
+      }
+      return 'center impar'
+    }
   },
   computed: {
     dadosFiltrados() {
@@ -229,6 +235,10 @@ input {
 
 .menu {
   margin-bottom: 10px;
+}
+
+.par {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 </style>
