@@ -6,25 +6,48 @@
       <b>Acadêmico:</b> André Luis Finger Candido
     </p>
     <p>
-      <b>Professor:</b> Ivan
+      <b>Professor:</b> Ivan Luiz Pedroso Pires
     </p>
   </div>
   <div>
+    <nav class="menu">
+      <ul>
+        <li>
+          <a href="#" v-on:click="alternaTabelas('Professores')">
+            PROFESSORES
+          </a>
+        </li>
+        <li>
+          <a href="#" v-on:click="alternaTabelas('Alunos')">
+            ALUNOS
+          </a>
+        </li>
+        <li>
+          <a href="#" v-on:click="alternaTabelas('Turmas')">
+            TURMAS
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div v-if="exibeProfessores">
     <h2>Tabela com cadastro de professores, aqui não é permitido edição dos registros</h2>
     <Tabela titulo="Professores" :headers="headerProfessores" :dados="dadosProfessors" :pode-editar="false"/>
-    <br/>
+    </div>
+    <div v-if="exibeAlunos">
     <h2>Tabela com cadastro de alunos, aqui não é permitido exclusão  dos registros</h2>
     <Tabela titulo="Alunos" :headers="headerAlunos" :dados="dadosAlunos" :pode-excluir="false"/>
-    <br/>
+    </div>
+    <div v-if="exibeTurmas">
     <h2>Tabela com cadastro de turmas, aqui é permitido apenas a edição dos registros</h2>
     <Tabela titulo="Turmas" :headers="headerTurmas" :dados="dadosTurmas" :pode-incluir="false" :pode-excluir="false" :pode-visualizar="false"/>
-    <br/>
+    </div>
   </div>
 </template>
 
 <script>
 import Tabela from "@/components/Tabela";
 import logoUnemat from "@/assets/logo.png"
+import bkg from "@/assets/bkg.jpg"
 
 export default {
   name: 'App',
@@ -33,7 +56,11 @@ export default {
   },
   data () {
     return {
+      exibeProfessores: true,
+      exibeAlunos: false,
+      exibeTurmas: false,
       logo: logoUnemat,
+      bkg: bkg,
       headerProfessores: ['Nome', 'Email'],
       dadosProfessors: [
         ['Ivan', 'ivan@unemat.br'],
@@ -55,20 +82,61 @@ export default {
       ],
     }
   },
+  methods: {
+    alternaTabelas(btn){
+      this.exibeProfessores = btn === 'Professores';
+      this.exibeAlunos = btn === 'Alunos';
+      this.exibeTurmas = btn === 'Turmas';
+    }
+  }
 }
 </script>
 
 <style>
+html {
+  background-image: url('@/assets/bkg.jpg');
+}
 
 * {
   margin: 0;
   padding: 0;
 }
 
+.menu {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.menu ul {
+  max-width: 800px;
+  list-style: none;
+  padding: 0;
+}
+
+.menu ul li {
+  display: inline;
+}
+
+.menu ul li a {
+  color: #FFF;
+  padding: 20px;
+  display: inline-flex;
+  text-decoration: none;
+  transition: background .4s;
+}
+
+.menu ul li a:hover {
+  color: black;
+}
+
+
 img {
   margin: auto;
   display: block;
   height: 100px;
+}
+
+.cabecalho, h2 {
+  color: white;
 }
 
 .cabecalho {

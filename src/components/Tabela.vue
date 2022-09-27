@@ -38,7 +38,7 @@
     </tbody>
     <tfoot>
       <tr>
-        <th :colspan="headers.length+2" class="rodape" v-if="filtro==''">
+        <th :colspan="headers.length+2" class="rodape" v-if="filtro===''">
           Registros: {{ String(dados.length).padStart(2, "0") }}
         </th>
         <th :colspan="headers.length+2" class="rodape" v-else>
@@ -177,9 +177,9 @@ export default {
     },
     validaLinha(i){
       if(i%2 === 0){
-        return 'center par'
+        return 'linha center par'
       }
-      return 'center impar'
+      return 'linha center impar'
     }
   },
   computed: {
@@ -206,6 +206,7 @@ export default {
 table {
   width: 100%;
   border-collapse: collapse;
+  background-color: white;
 }
 
 caption {
@@ -264,5 +265,8 @@ input {
   cursor: pointer;
 }
 
+.linha:hover{
+  background-color: rgba(0, 0, 0, 0.2);
+}
 
 </style>
