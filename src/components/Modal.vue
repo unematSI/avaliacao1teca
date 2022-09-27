@@ -6,7 +6,7 @@
       </header>
         <div v-for="(l, index) in labels" :key="index" class="campos">
           <p><b>{{ l }}:</b></p>
-          <input :readonly="[temVisualizacao, temExclusao].includes(tipoEdicaoModal)" v-model="dados[index]">
+          <input :readonly="[TipoEdicaoFormulario.Visualizacao, TipoEdicaoFormulario.Exclusao].includes(tipoEdicaoModal)" v-model="dados[index]">
         </div>
       <footer class="rodape">
         <button type="button" class="btnCancelar botoes" @click="cancel">Cancelar</button>
@@ -27,7 +27,7 @@ export default {
     titulo: {
       type: String,
       required: false,
-      default: "Titulo"
+      default: "Cadastro"
     },
     tipoEdicaoModal: {
       type: Number,
@@ -45,49 +45,47 @@ export default {
   },
   data (){
     return {
-      temVisualizacao: TipoEdicaoFormulario.Visualizacao,
-      temInclusao: TipoEdicaoFormulario.Inclusao,
-      temEdicao: TipoEdicaoFormulario.Edicao,
-      temExclusao: TipoEdicaoFormulario.Exclusao,
-      mrOk: ModalResult.Ok,
-      mrCancel: ModalResult.Cancel,
+      TipoEdicaoFormulario,
+      ModalResult,
       Result: null,
       dados: [],
     }
   },
-  watch: {
-    campos(newCampos) {
-      this.dados = [];
-      newCampos.forEach(dado => {
-        this.dados.push(dado);
-      })
-    },
+  mounted() {
+    this.dados = [];
+    this.campos.forEach(dado => {
+      this.dados.push(dado);
+    })
   },
   methods: {
-    cancel(){
-      if(this.tipoEdicaoModal === this.temVisualizacao){
-        this.Result = this.mrCancel;
+    isVisualizacao(){
+      if(this.tipoEdicaoModal === TipoEdicaoFormulario.Visualizacao){
+        this.Result = ModalResult.Cancel;
         this.$emit('fechar', this.Result, []);
+        return true;
+      }
+      return false;
+    },
+    cancel(){
+      if(this.isVisualizacao()){
         return;
       }
       if(confirm("Tem certeza que deseja cancelar o procecidimento?")) {
-        this.Result = this.mrCancel;
+        this.Result = ModalResult.Cancel;
         this.$emit('fechar', this.Result, []);
       }
     },
     confirm(){
-      if(this.tipoEdicaoModal === this.temVisualizacao){
-        this.Result = this.mrCancel;
-        this.$emit('fechar', this.Result, []);
+      if(this.isVisualizacao()){
         return;
       }
-      this.Result = this.mrOk;
+      this.Result = ModalResult.Ok;
       this.$emit('fechar', this.Result, this.dados);
     },
     tmeToStr(){
-      return this.tipoEdicaoModal === this.temEdicao ? 'Alterar' :
-          this.tipoEdicaoModal === this.temVisualizacao ? 'Visualizar' :
-          this.tipoEdicaoModal === this.temInclusao ? 'Incluir' : 'Excluir';
+      return this.tipoEdicaoModal === TipoEdicaoFormulario.Edicao ? 'Alterar' :
+          this.tipoEdicaoModal === TipoEdicaoFormulario.Visualizacao ? 'Visualizar' :
+          this.tipoEdicaoModal === TipoEdicaoFormulario.Inclusao ? 'Incluir' : 'Excluir';
     }
   }
 }
@@ -156,6 +154,11 @@ header {
 
 .btnOk {
   background: blue;
+}
+
+input:read-only {
+  background-color: rgba(0, 0, 0, 0.09);
+  cursor: not-allowed;
 }
 
 </style>

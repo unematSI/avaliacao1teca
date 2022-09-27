@@ -1,5 +1,5 @@
 <template>
-  <Modal :tipoEdicaoModal="tipoEdicaoModal" :campos="dadosModal" :labels="headers" :titulo="titulo" v-show="this.modalVisivel" @fechar=" (mr, d) => fecharModal(mr, d)"/>
+  <Modal :tipoEdicaoModal="tipoEdicaoModal" :campos="dadosModal" :labels="headers" :titulo="titulo" v-if="this.modalVisivel" @fechar=" (mr, d) => fecharModal(mr, d)"/>
   <table>
     <caption>{{ titulo }}</caption>
     <thead>
@@ -11,13 +11,17 @@
               <botao :visivel="filtro !== ''" v-on:click="limpaFiltro"><template v-slot:icone><cancel-icon/></template></botao>
           </div>
           <div class="right inline">
-            <botao :ativo="podeIncluir" backgroundColor="white" active-color="black" border="black 1px solid" v-on:click="abrirModal(-1, temInclusao)"><template v-slot:icone><plus-icon/><b>INCLUIR</b></template></botao>
+            <botao :ativo="podeIncluir" backgroundColor="white" active-color="black" border="black 1px solid" v-on:click="abrirModal(-1, TipoEdicaoFormulario.Inclusao)"><template v-slot:icone><plus-icon/><b>INCLUIR</b></template></botao>
           </div>
         </td>
       </tr>
       <tr>
         <th class="titulo" scope="col">#</th>
-        <th class="titulo" scope="col" v-for="(h, index) in headers" :key="index">{{ h }}</th>
+        <th class="titulo" scope="col" v-for="(h, index) in headers" :key="index" v-on:click="ordenaDados(index)">
+          <arrow-down-icon v-if="!sortingAsc && sortingIndex === index" :size="15"/>
+          <arrow-up-icon v-if="sortingAsc && sortingIndex === index" :size="15"/>
+          {{ h }}
+        </th>
         <th class="titulo" scope="col">Opções</th>
       </tr>
     </thead>
@@ -26,9 +30,9 @@
         <th scope="row">{{ index+1 }}</th>
         <td v-for="(d, i) in r" :key="i">{{ d }}</td>
         <td>
-          <botao :ativo="podeVisualizar" activeColor="blue" v-on:click="abrirModal(index, temVisualizacao)"><template v-slot:icone><eye-icon/></template></botao>
-          <botao :ativo="podeEditar" activeColor="green" v-on:click="abrirModal(index, temEdicao)"><template v-slot:icone><pencil-icon/></template></botao>
-          <botao :ativo="podeExcluir" activeColor="red" v-on:click="abrirModal(index, temExclusao)"><template v-slot:icone><trash-can-icon/></template></botao>
+          <botao :ativo="podeVisualizar" activeColor="blue" v-on:click="abrirModal(index, TipoEdicaoFormulario.Visualizacao)"><template v-slot:icone><eye-icon/></template></botao>
+          <botao :ativo="podeEditar" activeColor="green" v-on:click="abrirModal(index, TipoEdicaoFormulario.Edicao)"><template v-slot:icone><pencil-icon/></template></botao>
+          <botao :ativo="podeExcluir" activeColor="red" v-on:click="abrirModal(index, TipoEdicaoFormulario.Exclusao)"><template v-slot:icone><trash-can-icon/></template></botao>
         </td>
       </tr>
     </tbody>
@@ -46,13 +50,14 @@
 </template>
 
 <script>
-/* eslint-disable */
 import PlusIcon from 'vue-material-design-icons/Plus';
 import PencilIcon from 'vue-material-design-icons/Pencil';
 import TrashCanIcon from 'vue-material-design-icons/TrashCan';
 import CancelIcon from 'vue-material-design-icons/Cancel';
 import EyeIcon from 'vue-material-design-icons/Eye';
 import MagnifyIcon from 'vue-material-design-icons/Magnify';
+import ArrowUpIcon from 'vue-material-design-icons/ArrowUp';
+import ArrowDownIcon from 'vue-material-design-icons/ArrowDown';
 import Botao from "@/components/Botao";
 import Modal from "@/components/Modal";
 import {TipoEdicaoFormulario, ModalResult} from '@/consts'
@@ -67,24 +72,23 @@ export default {
     CancelIcon,
     EyeIcon,
     MagnifyIcon,
+    ArrowUpIcon,
+    ArrowDownIcon,
     Botao,
     Modal,
   },
   props: {
     titulo: {
-      default: 'TABELA',
       type: String,
-      required: false
+      required: true
     },
     headers: {
-      default: ['H1', 'H2', 'H3'],
       type: Array,
-      required: false
+      required: true
     },
     dados: {
-      default: [['D1', 'D2', 'D3'], ['D4', 'D5', 'D6']],
       type: Array,
-      required: false
+      required: true
     },
     podeVisualizar: {
       default: true,
@@ -111,47 +115,61 @@ export default {
     return {
       filtro: '',
       modalVisivel: false,
-      temVisualizacao: TipoEdicaoFormulario.Visualizacao,
-      temInclusao: TipoEdicaoFormulario.Inclusao,
-      temEdicao: TipoEdicaoFormulario.Edicao,
-      temExclusao: TipoEdicaoFormulario.Exclusao,
+      TipoEdicaoFormulario,
       tipoEdicaoModal: TipoEdicaoFormulario.Visualizacao,
       mrOk: ModalResult.Ok,
       mrCancel: ModalResult.Cancel,
       dadosModal: [],
       indiceModal: -1,
+      sortingAsc: true,
+      sortingIndex: -1,
+      fDados: [],
     }
   },
+  mounted() {
+    this.fDados = this.dados;
+  },
   methods: {
+    ordenaDados(i){
+      if(this.sortingAsc) {
+        this.dadosFiltrados.sort(function (a, b) {
+          return (a[i] > b[i]) ? 1 : -1
+        });
+      } else{
+        this.dadosFiltrados.sort(function (a, b) {
+          return (a[i] > b[i]) ? -1 : 1
+        });
+      }
+      this.sortingIndex = i;
+      this.sortingAsc = !this.sortingAsc;
+    },
     limpaFiltro(){
       this.filtro = ''
     },
     fecharModal(modalResult, d){
-      console.log(d)
-      console.log(modalResult);
       this.modalVisivel = false;
 
       if(modalResult === this.mrOk){
-        if(this.tipoEdicaoModal === this.temInclusao) {
-          this.dados.push(d);
-        } else if (this.tipoEdicaoModal === this.temEdicao) {
-          this.dados[this.indiceModal] = d;
-        } else if (this.tipoEdicaoModal === this.temExclusao){
-          this.dados.splice(this.indiceModal, 1);
+        if(this.tipoEdicaoModal === TipoEdicaoFormulario.Inclusao) {
+          this.fDados.push(d);
+        } else if (this.tipoEdicaoModal === TipoEdicaoFormulario.Edicao) {
+          this.fDados[this.indiceModal] = d;
+        } else if (this.tipoEdicaoModal === TipoEdicaoFormulario.Exclusao){
+          this.fDados.splice(this.indiceModal, 1);
         }
       }
     },
     abrirModal(i, tem){
-      if(tem === this.temInclusao && !this.podeIncluir ||
-         tem === this.temVisualizacao && !this.podeVisualizar ||
-         tem === this.temEdicao && !this.podeEditar ||
-         tem === this.temExclusao && !this.podeExcluir){
+      if(tem === TipoEdicaoFormulario.Inclusao && !this.podeIncluir ||
+         tem === TipoEdicaoFormulario.Visualizacao && !this.podeVisualizar ||
+         tem === TipoEdicaoFormulario.Edicao && !this.podeEditar ||
+         tem === TipoEdicaoFormulario.Exclusao && !this.podeExcluir){
         return
       }
 
       this.dadosModal = []
-      if(tem !== this.temInclusao) {
-        this.dadosModal = this.dados[i];
+      if(tem !== TipoEdicaoFormulario.Inclusao) {
+        this.dadosModal = this.fDados[i];
         this.indiceModal = i;
       }
       this.tipoEdicaoModal = tem;
@@ -167,9 +185,9 @@ export default {
   computed: {
     dadosFiltrados() {
       if(this.filtro === ''){
-        return this.dados;
+        return this.fDados;
       }
-      return this.dados.filter(dado => {
+      return this.fDados.filter(dado => {
         let valid = false
         dado.forEach(val => {
           if(val.toUpperCase().includes(this.filtro.toUpperCase())){
@@ -183,7 +201,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
 table {
@@ -193,6 +210,7 @@ table {
 
 caption {
   font-weight: bold;
+  text-transform: uppercase;
   color: white;
   background: black;
   white-space: nowrap;
@@ -235,10 +253,16 @@ input {
 
 .menu {
   margin-bottom: 10px;
+  background-color: darkgray;
 }
 
 .par {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.07);
 }
+
+.titulo{
+  cursor: pointer;
+}
+
 
 </style>
