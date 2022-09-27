@@ -1,6 +1,6 @@
 <template>
   <div>
-  <Tabela/>
+  <Tabela :pode-editar="false"/>
   </div>
 </template>
 

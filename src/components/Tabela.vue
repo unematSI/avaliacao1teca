@@ -3,10 +3,12 @@
   <table>
     <caption>{{ titulo }}</caption>
     <thead>
-      <tr class="pesquisa">
+      <tr class="pesquisa; center">
+        <td :colspan="headers.length+2">
           <text>Pesquisa:</text>
           <input type="text" v-on:change="filtraTabela" placeholder="Dado para busca..."/>
           <cancel-icon class="btn" title="Cancelar pesquisa"/>
+        </td>
       </tr>
       <tr>
         <th class="titulo" scope="col">#</th>
@@ -19,13 +21,18 @@
         <th scope="row">{{ index+1 }}</th>
         <td v-for="(d, i) in r" :key="i">{{ d }}</td>
         <td>
-<!--          <button> <plus-circle-icon/> </button>-->
-          <pencil-icon class="btn"/>
-          <trash-can-icon class="btn"/>
-
+          <botao :ativo="podeEditar"><template v-slot:icone><pencil-icon/></template></botao>
+          <botao :ativo="podeExcluir"><template v-slot:icone><trash-can-icon/></template></botao>
         </td>
       </tr>
     </tbody>
+    <tfoot>
+      <tr>
+        <td :colspan="headers.length+2">
+          <botao :ativo="podeIncluir"><template v-slot:icone><plus-icon/>Incluir</template></botao>
+        </td>
+      </tr>
+    </tfoot>
   </table>
 </template>
 
@@ -35,6 +42,8 @@ import PlusIcon from 'vue-material-design-icons/Plus';
 import PencilIcon from 'vue-material-design-icons/Pencil';
 import TrashCanIcon from 'vue-material-design-icons/TrashCan';
 import CancelIcon from 'vue-material-design-icons/Cancel';
+import Botao from "@/components/Botao";
+import TipoEdicaoModal from '@/const';
 
 
 export default {
@@ -44,6 +53,8 @@ export default {
     PencilIcon,
     TrashCanIcon,
     CancelIcon,
+    Botao,
+    TipoEdicaoModal,
   },
   props: {
     titulo: {
@@ -60,7 +71,22 @@ export default {
       default: [['D1', 'D2', 'D3'], ['D4', 'D5', 'D6']],
       type: [],
       required: true
-    }
+    },
+    podeIncluir: {
+      default: true,
+      type: Boolean,
+      required: true,
+    },
+    podeEditar: {
+      default: true,
+      type: Boolean,
+      required: true,
+    },
+    podeExcluir: {
+      default: true,
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -70,6 +96,12 @@ export default {
   methods: {
     filtraTabela(){
       return ''
+    },
+    validaBotao(condicao){
+      if(condicao){
+        return 'btn'
+      }
+      return 'disabledBtn'
     }
   },
 }
@@ -100,9 +132,8 @@ tr, td, th, caption {
   border: black 1px solid;
 }
 
-.btn {
-  padding: 4px;
-  cursor: pointer;
+.center {
+  text-align: center;
+  display: table-;
 }
-
 </style>
